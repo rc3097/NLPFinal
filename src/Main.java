@@ -5,16 +5,19 @@ import java.io.IOException;
 import java.util.AbstractCollection;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+
 import nlp.util.CommandLineUtils;
+import nlp.util.Pair;
 
 public class Main {
 
-	static class SentenceCollection extends AbstractCollection<List<String>> {
-		static class SentenceIterator implements Iterator<List<String>> {
+	static class SentenceCollection  {
+		static class SentenceIterator implements Iterator<Pair<String,List<String>>> {
 
 			BufferedReader reader;
 
@@ -26,12 +29,12 @@ public class Main {
 				}
 			}
 
-			public List<String> next() {
+			public Pair<String,List<String>> next() {
 				try {
 					String line = reader.readLine();
 					String[] parts = line.split("\t");
 					String topic = parts[0];
-					String level = parts[1];
+					String label = parts[1];
 					line = parts[2];
 					String[] words = line.split("\\s+");
 					List<String> sentence = new ArrayList<String>();
@@ -39,7 +42,8 @@ public class Main {
 						String word = words[i];
 						sentence.add(word.toLowerCase());
 					}
-					return sentence;
+					Pair<String,List<String>> resultPair = new Pair<String, List<String>>(label, sentence); 
+					return resultPair;
 				} catch (IOException e) {
 					throw new NoSuchElementException();
 				}
@@ -56,7 +60,7 @@ public class Main {
 
 		String fileName;
 
-		public Iterator<List<String>> iterator() {
+		public Iterator<Pair<String,List<String>>> iterator() {
 			try {
 				BufferedReader reader = new BufferedReader(new FileReader(
 						fileName));
@@ -69,7 +73,7 @@ public class Main {
 
 		public int size() {
 			int size = 0;
-			Iterator<List<String>> i = iterator();
+			Iterator<Pair<String,List<String>>> i = iterator();
 			while (i.hasNext()) {
 				size++;
 				i.next();
@@ -82,7 +86,7 @@ public class Main {
 		}
 
 		public static class Reader {
-			static Collection<List<String>> readSentenceCollection(
+			static HashMap<String,Pair<String,List<String>>> readSentenceCollection(
 					String fileName) {
 				return new SentenceCollection(fileName);
 			}
