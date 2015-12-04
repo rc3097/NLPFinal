@@ -10,10 +10,10 @@ import nlp.util.Pair;
  * Language models assign probabilities to sentences and generate sentences.
  */
 public abstract class LanguageModel {
-	public void train(HashMap<String, Pair<String, List<String>>> traindata) {
+	public void train(HashMap<String, List<Pair<String, List<String>>>> traindata) {
 		
 	}
-	public double predictProbability(HashMap<String, Pair<String, List<String>>> traindata) {
+	public double predictProbability(HashMap<String, List<Pair<String, List<String>>>> traindata) {
 		return 0;
 	}
 	

@@ -17,7 +17,7 @@ import nlp.util.Pair;
 public class Main {
 
 	static class SentenceCollection  {
-		static class SentenceIterator implements Iterator<Pair<String,List<String>>> {
+		static class SentenceIterator implements Iterator<Pair<String,Pair<String,List<String>>>> {
 
 			BufferedReader reader;
 
@@ -29,7 +29,7 @@ public class Main {
 				}
 			}
 
-			public Pair<String,List<String>> next() {
+			public Pair<String,Pair<String,List<String>>> next() {
 				try {
 					String line = reader.readLine();
 					String[] parts = line.split("\t");
@@ -43,7 +43,7 @@ public class Main {
 						sentence.add(word.toLowerCase());
 					}
 					Pair<String,List<String>> resultPair = new Pair<String, List<String>>(label, sentence); 
-					return resultPair;
+					return new Pair<String, Pair<String,List<String>>>(topic,resultPair);
 				} catch (IOException e) {
 					throw new NoSuchElementException();
 				}
@@ -60,7 +60,7 @@ public class Main {
 
 		String fileName;
 
-		public Iterator<Pair<String,List<String>>> iterator() {
+		public Iterator<Pair<String,Pair<String,List<String>>>> iterator() {
 			try {
 				BufferedReader reader = new BufferedReader(new FileReader(
 						fileName));
@@ -73,7 +73,7 @@ public class Main {
 
 		public int size() {
 			int size = 0;
-			Iterator<Pair<String,List<String>>> i = iterator();
+			Iterator<Pair<String,Pair<String,List<String>>>> i = iterator();
 			while (i.hasNext()) {
 				size++;
 				i.next();
@@ -83,8 +83,12 @@ public class Main {
 
 		public HashMap<String, Pair<String, List<String>>> reader(String fileName){
 			this.fileName = fileName;
-			Iterator<Pair<String,List<String>>> sIterator = iterator();
-			
+			Iterator<Pair<String,Pair<String,List<String>>>> sIterator = iterator();
+			while (sIterator.hasNext()) {
+				Pair<String,Pair<String,List<String>>> sPair = sIterator.next();
+				String topic = sPair.getFirst();
+				Pair<String, List<String>> resultPair = sPair.getSecond();
+			}
 			return null;
 		}
 
