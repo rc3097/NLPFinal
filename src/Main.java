@@ -81,15 +81,11 @@ public class Main {
 			return size;
 		}
 
-		public SentenceCollection(String fileName) {
+		public HashMap<String, Pair<String, List<String>>> reader(String fileName){
 			this.fileName = fileName;
-		}
-
-		public static class Reader {
-			static HashMap<String,Pair<String,List<String>>> readSentenceCollection(
-					String fileName) {
-				return new SentenceCollection(fileName);
-			}
+			Iterator<Pair<String,List<String>>> sIterator = iterator();
+			
+			return null;
 		}
 
 	}
