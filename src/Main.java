@@ -76,7 +76,7 @@ public class Main {
 
 		public int size() {
 			int size = 0;
-			Iterator<Pair<String, Pair<String, List<String>>>> i = iterator();
+			Iterator<Pair<Pair<String, String>, List<String>>> i = iterator();
 			while (i.hasNext()) {
 				size++;
 				i.next();
@@ -86,12 +86,20 @@ public class Main {
 
 		public HashMap<Pair<String, String>, List< List<String>>> reader(String fileName){
 			this.fileName = fileName;
-			Iterator<Pair<String,Pair<String,List<String>>>> sIterator = iterator();
+			Iterator<Pair<Pair<String, String>, List<String>>> sIterator = iterator();
+			HashMap<Pair<String, String>, List< List<String>>> resultHashMap = new HashMap<Pair<String,String>, List<List<String>>>();
 			while (sIterator.hasNext()) {
-				Pair<String,Pair<String,List<String>>> sPair = sIterator.next();
-				String topic = sPair.getFirst();
-				if 
-				Pair<String, List<String>> resultPair = sPair.getSecond();
+				Pair<Pair<String, String>, List<String>> sPair = sIterator.next();
+				Pair<String, String> topic_label = sPair.getFirst();
+				List<String> sentencelist = sPair.getSecond();
+				if (resultHashMap.containsKey(topic_label)) {
+					List<List<String>> tempLists =  resultHashMap.get(topic_label);
+					tempLists.add(sentencelist);
+				} else {
+					List<List<String>> tempLists = new ArrayList<List<String>>();
+					tempLists.add(sentencelist);
+					resultHashMap.put(topic_label, tempLists);
+				}
 			}
 			return null;
 		}
