@@ -101,7 +101,7 @@ public class Main {
 					resultHashMap.put(topic_label, tempLists);
 				}
 			}
-			return null;
+			return resultHashMap;
 		}
 	}
 
