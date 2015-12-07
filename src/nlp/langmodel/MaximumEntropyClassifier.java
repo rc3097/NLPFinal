@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map.Entry;
 
+import nlp.langmodel.ProperNameTester.ProperNameFeatureExtractor;
 import nlp.classify.*;
 import nlp.math.DifferentiableFunction;
 import nlp.math.DoubleArrays;
@@ -502,11 +503,14 @@ public class MaximumEntropyClassifier<I, F, L> implements
 			String label = keyPair.getSecond();
 
 			for (List<String> sentence : valuelist) {
+				// optimization TODO:
 				String[] templist = (String[])  sentence.toArray();
 				LabeledInstance<String[], String> eachsentence =  new LabeledInstance<String[], String>(label, templist);
 				trainingData.add(eachsentence);
 			}
-
 		}
+		
+		ProbabilisticClassifierFactory<String, String> factory = new MaximumEntropyClassifier.Factory<String, String, String>(
+				1.0, 20, new ProperNameFeatureExtractor());
 	}
 }
