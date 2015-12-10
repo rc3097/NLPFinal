@@ -26,7 +26,7 @@ import nlp.util.Pair;
  * <p/>
  * This will run a toy test classification.
  */
-public class MaximumEntropyClassifier<I, F, L> implements
+public class MaximumEntropyClassifier<I, F, L> extends LanguageModel implements
 		ProbabilisticClassifier<I, L> {
 
 	/**
@@ -512,5 +512,12 @@ public class MaximumEntropyClassifier<I, F, L> implements
 		
 		ProbabilisticClassifierFactory<String, String> factory = new MaximumEntropyClassifier.Factory<String, String, String>(
 				1.0, 20, new ProperNameFeatureExtractor());
+	}
+	public double predictProbability(HashMap<Pair<String, String>, List< List<String>>> testdata) {
+		for (Entry<Pair<String, String>, List<List<String>>> entry : testdata
+				.entrySet()) {
+			
+		}
+		return 0;
 	}
 }

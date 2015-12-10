@@ -13,7 +13,7 @@ public abstract class LanguageModel {
 	public void train(HashMap<Pair<String, String>, List< List<String>>> traindata) {
 		
 	}
-	public double predictProbability(HashMap<Pair<String, String>, List< List<String>>> traindata) {
+	public double predictProbability(HashMap<Pair<String, String>, List< List<String>>> testdata) {
 		return 0;
 	}
 	
