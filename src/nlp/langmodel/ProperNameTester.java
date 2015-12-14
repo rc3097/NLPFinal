@@ -35,6 +35,9 @@ public class ProperNameTester {
 			// features.incrementCount("UNI-" + characters[characters.length -
 			// 1],
 			// 2.0);
+			name = name.replace(".", "");
+			name =  name.replace(",", "");
+			
 			for (int i = 0; i < characters.length; i++) {
 				char character = characters[i];
 				features.incrementCount("UNI-" + character, 1.0);

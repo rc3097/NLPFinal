@@ -11,6 +11,7 @@ import java.util.NoSuchElementException;
 
 import nlp.langmodel.LanguageModel;
 import nlp.langmodel.MaxentTesterModel1;
+import nlp.langmodel.MaxentTesterModel2;
 import nlp.util.CommandLineUtils;
 import nlp.util.Pair;
 
@@ -39,9 +40,11 @@ public class Main {
 					line = parts[2];
 					String[] words = line.split("\\s+");
 					List<String> sentence = new ArrayList<String>();
-					for (int i = 0; i < words.length; i++) {
-						String word = words[i];
-						sentence.add(word.toLowerCase());
+					if (!line.equals("Not Available")) {
+						for (int i = 0; i < words.length; i++) {
+							String word = words[i];
+							sentence.add(word.toLowerCase());
+						}
 					}
 					Pair<String, String> headPair = new Pair<String, String>(
 							topic, label);
@@ -94,6 +97,8 @@ public class Main {
 						.next();
 				Pair<String, String> topic_label = sPair.getFirst();
 				List<String> sentencelist = sPair.getSecond();
+				if (sentencelist.size() == 0)
+					continue;
 				if (resultHashMap.containsKey(topic_label)) {
 					List<List<String>> tempLists = resultHashMap
 							.get(topic_label);
@@ -131,11 +136,12 @@ public class Main {
 			model = argMap.get("-method");
 			if (model.equals("ME1")) {
 				LM = new MaxentTesterModel1();
-				LM.train(traindata);
+
 			} else if (model.equals("ME2")) {
-				
+				LM = new MaxentTesterModel2();
 			}
 		}
+		LM.train(traindata);
 		if (argMap.containsKey("-test")) {
 			testPath = argMap.get("-test");
 			testdata = SC.reader(testPath);
