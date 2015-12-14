@@ -13,9 +13,11 @@ import nlp.langmodel.ProperNameTester.ProperNameFeatureExtractor;
 import nlp.util.Counter;
 import nlp.util.Pair;
 
-public class MaxentTester extends LanguageModel {
+public class MaxentTesterModel1 extends LanguageModel {
 	ProbabilisticClassifier<String[], String> classifier = null;
-	public void train(HashMap<Pair<String, String>, List< List<String>>> sentencePair) {
+
+	public void train(
+			HashMap<Pair<String, String>, List<List<String>>> sentencePair) {
 		List<LabeledInstance<String[], String>> trainingData = new ArrayList<LabeledInstance<String[], String>>();
 
 		for (Entry<Pair<String, String>, List<List<String>>> entry : sentencePair
@@ -38,21 +40,33 @@ public class MaxentTester extends LanguageModel {
 
 		MaximumEntropyClassifier.Factory<String[], String, String> factory = new MaximumEntropyClassifier.Factory<String[], String, String>(
 				1.0, 20, new ProperNameTester.ListStringFeatureExtractor());
-		classifier=factory.trainClassifier(trainingData);
+		classifier = factory.trainClassifier(trainingData);
 	}
-	public double predictProbability(HashMap<Pair<String, String>, List< List<String>>> testdata) {
+
+	public double predictProbability(
+			HashMap<Pair<String, String>, List<List<String>>> testdata) {
+		int pre_positivecount = 0;
+		int real_positviecount = 0;
+		int total =0;
 		for (Entry<Pair<String, String>, List<List<String>>> entry : testdata
 				.entrySet()) {
-			Pair<String,String> keyPair = entry.getKey();
+			total++;
+			Pair<String, String> keyPair = entry.getKey();
 			String label = keyPair.getSecond();
-			
+			if (label.equals("positive"))
+				real_positviecount++;
 			for (List<String> sentence : entry.getValue()) {
 				String[] templist = new String[sentence.size()];
 				sentence.toArray(templist);
-				Counter<String> result=classifier.getProbabilities(templist);
-				System.out.println( result);
+				Counter<String> result = classifier.getProbabilities(templist);
+				System.out.println(result);
+				if (result.getCount("positive") > result.getCount("negative")) {
+					pre_positivecount++;
+				}
 			}
 		}
-		return 0;
+		double p = real_positviecount/total;
+		double q =  pre_positivecount/total;
+		return lossfunction(p, q);
 	}
 }

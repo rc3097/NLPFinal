@@ -16,5 +16,11 @@ public abstract class LanguageModel {
 	public double predictProbability(HashMap<Pair<String, String>, List< List<String>>> testdata) {
 		return 0;
 	}
-	
+	public double lossfunction(double p, double q){
+		double p1 = p;
+		double q1 =q;
+		double p2 = 1-p;
+		double q2 = 1-q;
+		return p1 * Math.log(p1/q1) + p2 *Math.log(p2/q2);
+	}
 }

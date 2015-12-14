@@ -2,9 +2,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.AbstractCollection;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -12,7 +10,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 import nlp.langmodel.LanguageModel;
-import nlp.langmodel.MaxentTester;
+import nlp.langmodel.MaxentTesterModel1;
 import nlp.util.CommandLineUtils;
 import nlp.util.Pair;
 
@@ -131,9 +129,11 @@ public class Main {
 
 		if (argMap.containsKey("-method")) {
 			model = argMap.get("-method");
-			if (model.equals("ME")) {
-				LM = new MaxentTester();
+			if (model.equals("ME1")) {
+				LM = new MaxentTesterModel1();
 				LM.train(traindata);
+			} else if (model.equals("ME2")) {
+				
 			}
 		}
 		if (argMap.containsKey("-test")) {
