@@ -28,20 +28,13 @@ public class ProperNameTester {
 	public static class ProperNameFeatureExtractor implements
 			FeatureExtractor<String, String> {
 
-		/**
-		 * This method takes the list of characters representing the proper name
-		 * description, and produces a list of features which represent that
-		 * description. The basic implementation is that only character-unigram
-		 * features are extracted. An easy extension would be to also throw
-		 * character bigrams into the feature list, but better features are also
-		 * possible.
-		 */
 		public Counter<String> extractFeatures(String name) {
 			char[] characters = name.toCharArray();
 			Counter<String> features = new Counter<String>();
 			// add character unigram features
-//			features.incrementCount("UNI-" + characters[characters.length - 1],
-//					2.0);
+			// features.incrementCount("UNI-" + characters[characters.length -
+			// 1],
+			// 2.0);
 			for (int i = 0; i < characters.length; i++) {
 				char character = characters[i];
 				features.incrementCount("UNI-" + character, 1.0);
@@ -59,6 +52,36 @@ public class ProperNameTester {
 			String[] names = name.split(" ");
 			for (int i = 0; i < names.length; i++) {
 				features.incrementCount("WHO-" + names[i], 4.0);
+			}
+
+			return features;
+		}
+	}
+
+	public static class ListStringFeatureExtractor implements
+			FeatureExtractor<String[], String> {
+
+		public Counter<String> extractFeatures(String[] words) {
+			Counter<String> features = new Counter<String>();
+			for (String word : words) {
+				char[] characters = word.toCharArray();
+			
+				// add character unigram features
+
+				for (int i = 0; i < characters.length; i++) {
+					char character = characters[i];
+					features.incrementCount("UNI-" + character, 1.0);
+				}
+				for (int i = 0; i < characters.length - 1; i++) {
+					features.incrementCount("BI-" + characters[i]
+							+ characters[i + 1], 1.0);
+				}
+				//
+				for (int i = 0; i < characters.length - 2; i++) {
+					features.incrementCount("TRI-" + characters[i]
+							+ characters[i + 1] + characters[i + 2], 2.0);
+				}
+
 			}
 
 			return features;

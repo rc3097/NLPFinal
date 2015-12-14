@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import nlp.langmodel.LanguageModel;
+import nlp.langmodel.MaxentTester;
 import nlp.util.CommandLineUtils;
 import nlp.util.Pair;
 
@@ -84,16 +86,19 @@ public class Main {
 			return size;
 		}
 
-		public HashMap<Pair<String, String>, List< List<String>>> reader(String fileName){
+		public HashMap<Pair<String, String>, List<List<String>>> reader(
+				String fileName) {
 			this.fileName = fileName;
 			Iterator<Pair<Pair<String, String>, List<String>>> sIterator = iterator();
-			HashMap<Pair<String, String>, List< List<String>>> resultHashMap = new HashMap<Pair<String,String>, List<List<String>>>();
+			HashMap<Pair<String, String>, List<List<String>>> resultHashMap = new HashMap<Pair<String, String>, List<List<String>>>();
 			while (sIterator.hasNext()) {
-				Pair<Pair<String, String>, List<String>> sPair = sIterator.next();
+				Pair<Pair<String, String>, List<String>> sPair = sIterator
+						.next();
 				Pair<String, String> topic_label = sPair.getFirst();
 				List<String> sentencelist = sPair.getSecond();
 				if (resultHashMap.containsKey(topic_label)) {
-					List<List<String>> tempLists =  resultHashMap.get(topic_label);
+					List<List<String>> tempLists = resultHashMap
+							.get(topic_label);
 					tempLists.add(sentencelist);
 				} else {
 					List<List<String>> tempLists = new ArrayList<List<String>>();
@@ -104,9 +109,6 @@ public class Main {
 			return resultHashMap;
 		}
 	}
-	
-	
-	
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
@@ -117,17 +119,27 @@ public class Main {
 		String model = "baseline";
 		String testPath = "";
 		boolean verbose = false;
+		SentenceCollection SC = new SentenceCollection();
+		HashMap<Pair<String, String>, List<List<String>>> testdata = null;
+		HashMap<Pair<String, String>, List<List<String>>> traindata = null;
+		LanguageModel LM = null;
 
-		if (argMap.containsKey("--path")) {
+		if (argMap.containsKey("-path")) {
 			basePath = argMap.get("-path");
+			traindata = SC.reader(basePath);
 		}
 
 		if (argMap.containsKey("-method")) {
 			model = argMap.get("-method");
+			if (model.equals("ME")) {
+				LM = new MaxentTester();
+				LM.train(traindata);
+			}
 		}
 		if (argMap.containsKey("-test")) {
-			testPath =  argMap.get("-test");
+			testPath = argMap.get("-test");
+			testdata = SC.reader(testPath);
 		}
+		LM.predictProbability(testdata);
 	}
-
 }

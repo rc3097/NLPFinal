@@ -26,7 +26,7 @@ import nlp.util.Pair;
  * <p/>
  * This will run a toy test classification.
  */
-public class MaximumEntropyClassifier<I, F, L> extends LanguageModel implements
+public class MaximumEntropyClassifier<I, F, L> implements
 		ProbabilisticClassifier<I, L> {
 
 	/**
@@ -490,45 +490,4 @@ public class MaximumEntropyClassifier<I, F, L> extends LanguageModel implements
 				+ maximumEntropyClassifier.getProbabilities(datum4.getInput()));
 	}
 
-	public static void main(
-			HashMap<Pair<String, String>, List<List<String>>> sentencePair) {
-		List<LabeledInstance<String[], String>> trainingData = new ArrayList<LabeledInstance<String[], String>>();
-
-		for (Entry<Pair<String, String>, List<List<String>>> entry : sentencePair
-				.entrySet()) {
-
-			Pair<String, String> keyPair = entry.getKey();
-			List<List<String>> valuelist = entry.getValue();
-
-			String label = keyPair.getSecond();
-
-			for (List<String> sentence : valuelist) {
-				// optimization TODO:
-				String[] templist = (String[]) sentence.toArray();
-				LabeledInstance<String[], String> eachsentence = new LabeledInstance<String[], String>(
-						label, templist);
-				trainingData.add(eachsentence);
-			}
-		}
-
-		ProbabilisticClassifierFactory<String, String> factory = new MaximumEntropyClassifier.Factory<String, String, String>(
-				1.0, 20, new ProperNameFeatureExtractor());
-	}
-
-	@SuppressWarnings("unchecked")
-	public double predictProbability(
-			HashMap<Pair<String, String>, List<List<String>>> testdata) {
-		for (Entry<Pair<String, String>, List<List<String>>> entry : testdata
-				.entrySet()) {
-			Pair<String,String> keyPair = entry.getKey();
-			String label = keyPair.getSecond();
-			
-			for (List<String> sentence : entry.getValue()) {
-				String[] templist = (String[]) sentence.toArray();
-				LabeledInstance<String[], String> eachsentence = new LabeledInstance<String[], String>(label, templist);
-				getProbabilities((I) eachsentence.getInput());
-			}
-		}
-		return 0;
-	}
 }
