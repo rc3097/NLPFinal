@@ -37,7 +37,6 @@ public class MaxentTesterModel1 extends LanguageModel {
 				trainingData.add(eachsentence);
 			}
 		}
-
 		MaximumEntropyClassifier.Factory<String[], String, String> factory = new MaximumEntropyClassifier.Factory<String[], String, String>(
 				1.0, 20, new ProperNameTester.ListStringFeatureExtractor());
 		classifier = factory.trainClassifier(trainingData);
@@ -50,12 +49,14 @@ public class MaxentTesterModel1 extends LanguageModel {
 		int total =0;
 		for (Entry<Pair<String, String>, List<List<String>>> entry : testdata
 				.entrySet()) {
-			total++;
+			
 			Pair<String, String> keyPair = entry.getKey();
 			String label = keyPair.getSecond();
-			if (label.equals("positive"))
-				real_positviecount++;
+			
 			for (List<String> sentence : entry.getValue()) {
+				total++;
+				if (label.equals("positive"))
+					real_positviecount++;
 				String[] templist = new String[sentence.size()];
 				sentence.toArray(templist);
 				Counter<String> result = classifier.getProbabilities(templist);
@@ -65,8 +66,8 @@ public class MaxentTesterModel1 extends LanguageModel {
 				}
 			}
 		}
-		double p = real_positviecount/total;
-		double q =  pre_positivecount/total;
+		double p = real_positviecount*1.0/total;
+		double q =  1.0*pre_positivecount/total;
 		return lossfunction(p, q);
 	}
 }

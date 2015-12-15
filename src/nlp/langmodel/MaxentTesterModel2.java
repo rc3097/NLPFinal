@@ -17,19 +17,20 @@ public class MaxentTesterModel2 extends MaxentTesterModel1{
 		ArrayList<String> tempsentence= new ArrayList<String>();
 		for (Entry<Pair<String, String>, List<List<String>>> entry : testdata
 				.entrySet()) {
-			total++;
+			
 			Pair<String, String> keyPair = entry.getKey();
 			String label = keyPair.getSecond();
-			if (label.equals("positive"))
-				real_positviecount++;
 			for (List<String> sentence : entry.getValue()) {
+				total++;
+				if (label.equals("positive"))
+					real_positviecount++;
 				tempsentence.addAll(sentence);
 			}
 		}
 		String[] templist = new String[tempsentence.size()];
 		tempsentence.toArray(templist);
 		Counter<String> result = classifier.getProbabilities(templist);
-		double p = real_positviecount/total;
+		double p = real_positviecount*1.0/total;
 		double q =  result.getCount("positive");
 		return lossfunction(p, q);
 	}

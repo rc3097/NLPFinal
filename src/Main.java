@@ -146,6 +146,6 @@ public class Main {
 			testPath = argMap.get("-test");
 			testdata = SC.reader(testPath);
 		}
-		LM.predictProbability(testdata);
+		System.out.println(LM.predictProbability(testdata));
 	}
 }

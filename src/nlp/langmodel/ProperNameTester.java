@@ -7,6 +7,8 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
+import org.omg.PortableServer.ID_ASSIGNMENT_POLICY_ID;
+
 import nlp.classify.*;
 import nlp.util.CommandLineUtils;
 import nlp.util.Counter;
@@ -35,9 +37,7 @@ public class ProperNameTester {
 			// features.incrementCount("UNI-" + characters[characters.length -
 			// 1],
 			// 2.0);
-			name = name.replace(".", "");
-			name =  name.replace(",", "");
-			
+
 			for (int i = 0; i < characters.length; i++) {
 				char character = characters[i];
 				features.incrementCount("UNI-" + character, 1.0);
@@ -66,11 +66,24 @@ public class ProperNameTester {
 
 		public Counter<String> extractFeatures(String[] words) {
 			Counter<String> features = new Counter<String>();
+			
 			for (String word : words) {
 				char[] characters = word.toCharArray();
 			
 				// add character unigram features
-
+				
+				word =word.toLowerCase();
+				word = word.replace(".", "");
+				word =  word.replace(",", "");
+				if (word.equals("no")) {
+					features.incrementCount("NEG-" + word, 1.0);
+				}
+				if (word.equals("not")) {
+					features.incrementCount("NEG-" + word, 1.0);
+				}
+				if (word.contains("down")) {
+					features.incrementCount("NEG-" + word, 1.0);
+				}
 				for (int i = 0; i < characters.length; i++) {
 					char character = characters[i];
 					features.incrementCount("UNI-" + character, 1.0);
