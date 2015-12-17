@@ -1,5 +1,6 @@
 package nlp.langmodel;
 
+import java.util.IllegalFormatCodePointException;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
@@ -73,6 +74,9 @@ public class ProperNameTester {
 				// add character unigram features
 				
 				word =word.toLowerCase();
+				if (word.contains("http:")) {
+					continue;
+				}
 				word = word.replace(".", "");
 				word =  word.replace(",", "");
 				if (word.equals("no")) {

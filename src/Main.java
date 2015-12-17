@@ -132,6 +132,20 @@ public class Main {
 			traindata = SC.reader(basePath);
 		}
 
+		if (argMap.containsKey("-positive")) {
+			basePath = argMap.get("-positive");
+			HashMap<Pair<String, String>, List<List<String>>> positivewords = SC
+					.reader(basePath);
+			traindata.putAll(positivewords);
+		}
+
+		if (argMap.containsKey("-negative")) {
+			basePath = argMap.get("-negative");
+			HashMap<Pair<String, String>, List<List<String>>> negativewords = SC
+					.reader(basePath);
+			traindata.putAll(negativewords);
+		}
+
 		if (argMap.containsKey("-method")) {
 			model = argMap.get("-method");
 			if (model.equals("ME1")) {
@@ -146,6 +160,7 @@ public class Main {
 			testPath = argMap.get("-test");
 			testdata = SC.reader(testPath);
 		}
+
 		System.out.println(LM.predictProbability(testdata));
 	}
 }
