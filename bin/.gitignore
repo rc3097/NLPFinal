@@ -1,4 +1,3 @@
-/Main$SentenceCollection$SentenceIterator.class
-/Main$SentenceCollection.class
-/Main.class
-/nlp/
+# Ignore any file in this directory except for this file and *.foo files
+*
+!/.gitignore
