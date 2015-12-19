@@ -2,15 +2,16 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.AbstractCollection;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import nlp.langmodel.LanguageModel;
+import nlp.langmodel.MaxentTesterModel1;
+import nlp.langmodel.MaxentTesterModel2;
 import nlp.util.CommandLineUtils;
 import nlp.util.Pair;
 
@@ -39,9 +40,11 @@ public class Main {
 					line = parts[2];
 					String[] words = line.split("\\s+");
 					List<String> sentence = new ArrayList<String>();
-					for (int i = 0; i < words.length; i++) {
-						String word = words[i];
-						sentence.add(word.toLowerCase());
+					if (!line.equals("Not Available")) {
+						for (int i = 0; i < words.length; i++) {
+							String word = words[i];
+							sentence.add(word.toLowerCase());
+						}
 					}
 					Pair<String, String> headPair = new Pair<String, String>(
 							topic, label);
@@ -84,16 +87,21 @@ public class Main {
 			return size;
 		}
 
-		public HashMap<Pair<String, String>, List< List<String>>> reader(String fileName){
+		public HashMap<Pair<String, String>, List<List<String>>> reader(
+				String fileName) {
 			this.fileName = fileName;
 			Iterator<Pair<Pair<String, String>, List<String>>> sIterator = iterator();
-			HashMap<Pair<String, String>, List< List<String>>> resultHashMap = new HashMap<Pair<String,String>, List<List<String>>>();
+			HashMap<Pair<String, String>, List<List<String>>> resultHashMap = new HashMap<Pair<String, String>, List<List<String>>>();
 			while (sIterator.hasNext()) {
-				Pair<Pair<String, String>, List<String>> sPair = sIterator.next();
+				Pair<Pair<String, String>, List<String>> sPair = sIterator
+						.next();
 				Pair<String, String> topic_label = sPair.getFirst();
 				List<String> sentencelist = sPair.getSecond();
+				if (sentencelist.size() == 0)
+					continue;
 				if (resultHashMap.containsKey(topic_label)) {
-					List<List<String>> tempLists =  resultHashMap.get(topic_label);
+					List<List<String>> tempLists = resultHashMap
+							.get(topic_label);
 					tempLists.add(sentencelist);
 				} else {
 					List<List<String>> tempLists = new ArrayList<List<String>>();
@@ -104,9 +112,6 @@ public class Main {
 			return resultHashMap;
 		}
 	}
-	
-	
-	
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
@@ -117,17 +122,45 @@ public class Main {
 		String model = "baseline";
 		String testPath = "";
 		boolean verbose = false;
+		SentenceCollection SC = new SentenceCollection();
+		HashMap<Pair<String, String>, List<List<String>>> testdata = null;
+		HashMap<Pair<String, String>, List<List<String>>> traindata = null;
+		LanguageModel LM = null;
 
-		if (argMap.containsKey("--path")) {
+		if (argMap.containsKey("-path")) {
 			basePath = argMap.get("-path");
+			traindata = SC.reader(basePath);
+		}
+
+		if (argMap.containsKey("-positive")) {
+			basePath = argMap.get("-positive");
+			HashMap<Pair<String, String>, List<List<String>>> positivewords = SC
+					.reader(basePath);
+			traindata.putAll(positivewords);
+		}
+
+		if (argMap.containsKey("-negative")) {
+			basePath = argMap.get("-negative");
+			HashMap<Pair<String, String>, List<List<String>>> negativewords = SC
+					.reader(basePath);
+			traindata.putAll(negativewords);
 		}
 
 		if (argMap.containsKey("-method")) {
 			model = argMap.get("-method");
-		}
-		if (argMap.containsKey("-test")) {
-			testPath =  argMap.get("-test");
-		}
-	}
+			if (model.equals("ME1")) {
+				LM = new MaxentTesterModel1();
 
+			} else if (model.equals("ME2")) {
+				LM = new MaxentTesterModel2();
+			}
+		}
+		LM.train(traindata);
+		if (argMap.containsKey("-test")) {
+			testPath = argMap.get("-test");
+			testdata = SC.reader(testPath);
+		}
+
+		System.out.println(LM.predictProbability(testdata));
+	}
 }
