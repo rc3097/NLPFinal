@@ -1,3 +1,8 @@
-# Ignore any file in this directory except for this file and *.foo files
+# Ignore everything
 *
-!/.gitignore
+
+# Don't ignore directories, so we can recurse into them
+!*/
+
+# Don't ignore .gitignore
+!.gitignore
