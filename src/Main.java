@@ -9,9 +9,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import nlp.langmodel.LanguageModel;
 import nlp.langmodel.MaxentTesterModel1;
 import nlp.langmodel.MaxentTesterModel2;
+import nlp.langmodel.SentimentQuantifier;
 import nlp.util.CommandLineUtils;
 import nlp.util.Pair;
 
@@ -125,7 +125,7 @@ public class Main {
 		SentenceCollection SC = new SentenceCollection();
 		HashMap<Pair<String, String>, List<List<String>>> testdata = null;
 		HashMap<Pair<String, String>, List<List<String>>> traindata = null;
-		LanguageModel LM = null;
+		SentimentQuantifier LM = null;
 
 		if (argMap.containsKey("-path")) {
 			basePath = argMap.get("-path");

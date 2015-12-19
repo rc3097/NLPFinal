@@ -13,7 +13,7 @@ import nlp.langmodel.ProperNameTester.ProperNameFeatureExtractor;
 import nlp.util.Counter;
 import nlp.util.Pair;
 
-public class MaxentTesterModel1 extends LanguageModel {
+public class MaxentTesterModel1 extends SentimentQuantifier {
 	ProbabilisticClassifier<String[], String> classifier = null;
 
 	public void train(
