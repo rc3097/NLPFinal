@@ -14,11 +14,11 @@ public class WordVectorIterator implements DataSetIterator {
 	 * implements org.deeplearning4j.datasets.iterator.DataSetIterator.
 	 */
 	private static final long serialVersionUID = 1L;
-	HashMap<String,List<Pair<String,String>>> tweetSets;
+	HashMap<String,TweetSet> tweetSets;
 	Iterator<HashMap<String,List<Pair<String,String>>>> tweetSetsIterator;
 	Random r;
 	
-	public WordVectorIterator(HashMap<String,List<Pair<String,String>>> tweetSets) {
+	public WordVectorIterator(HashMap<String,TweetSet> tweetSets) {
 		r = new Random(18835775);//pulled from Random.org
 		this.tweetSets = tweetSets;
 		tweetSetsIterator = 
