@@ -59,35 +59,28 @@ public class LstmRntnQuantifier extends SentimentQuantifier {
 		}
 		System.out.println("Total number of network parameters: " + totalNumParams);
 	}
-
+	
 	@Override
-	public void train(HashMap<Pair<String, String>, List<List<String>>> traindata) {
-		// TODO Auto-generated method stub
-		//separate data by topic
-		HashMap<String,List<Pair<String,String>>> tweetsets = new HashMap<String,List<Pair<String,String>>>();
-		for (Pair<String,String> key : traindata.keySet()) {
-			String topic = key.getFirst();
-			String label = key.getSecond();
-			if (!tweetsets.containsKey(topic)) tweetsets.put(topic,new ArrayList<Pair<String,String>>());
-			List<Pair<String,String>> tweetset = tweetsets.get(key);
-			List<List<String>> sentences = traindata.get(key);
-			for (List<String> sentenceList : sentences) {
-				StringJoiner joiner = new StringJoiner(" ");
-				for (String word : sentenceList)
-					joiner.add(word);
-				String sentenceString = joiner.toString();
-				tweetset.add(new Pair<String,String>(label,sentenceString));
-			}
+	public void train(HashMap<Pair<String,String>,List<List<String>>> traindata) {}
+	
+	public void train(HashMap<String,TweetSet> tweetSets, int numEpochs) {
+		System.out.println("Training network.");
+		WordVectorIterator iter = new WordVectorIterator(tweetSets);
+		for (int epoch = 0; epoch < numEpochs; ++epoch) {
+			System.out.println("Beginning epoch "+epoch+":");
+			net.fit(iter);
+			System.out.println("Completed epoch "+epoch+".\n");
 		}
-		
-		
+		System.out.println("Training complete.\n");
 	}
 
 	@Override
 	public double predictProbability(HashMap<Pair<String, String>, List<List<String>>> testdata) {
-		// TODO Auto-generated method stub
-		
 		return 0;
+	}
+	
+	public double predictProbability(TweetSet tweetSet) {
+		
 	}
 	
 	

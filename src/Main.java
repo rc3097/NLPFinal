@@ -186,7 +186,14 @@ public class Main {
 
 			} else if (model.equals("ME2")) {
 				LM = new MaxentTesterModel2();
+			} else if (model.equals("LSTM")) {
+				LstmRntnQuantifier lstm = new LstmRntnQuantifier
+				
+				
+				
+				System.exit(0);
 			}
+			
 		}
 		LM.train(traindata);
 		if (argMap.containsKey("-test")) {
