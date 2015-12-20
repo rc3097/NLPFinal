@@ -1,3 +1,4 @@
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -8,7 +9,7 @@ public class TweetSet implements Iterable<LabeledTweet>{
 			this.tweetSet = tweets;
 			Double numPos = 0.0;
 			for (LabeledTweet tweet : this.tweetSet) {
-				if (tweet.getLabel()) {
+				if (tweet.isPositive()) {
 					numPos += 1.0;
 				}
 			}
@@ -22,6 +23,10 @@ public class TweetSet implements Iterable<LabeledTweet>{
 		}
 		public int size() {
 			return this.tweetSet.size();
+		}
+		
+		public void shuffle() {
+			Collections.shuffle(this.tweetSet);
 		}
 		@Override
 		public Iterator<LabeledTweet> iterator() {

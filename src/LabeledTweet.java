@@ -9,7 +9,7 @@ public class LabeledTweet {
 			return tweet;
 		}
 
-		public boolean getLabel() {
+		public boolean isPositive() {
 			return label;
 		}
 
