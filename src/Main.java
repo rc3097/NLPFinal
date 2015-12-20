@@ -112,6 +112,39 @@ public class Main {
 			return resultHashMap;
 		}
 	}
+	
+
+	
+
+	
+	
+	public HashMap<String, TweetSet> readTweets(String filename) throws IOException {
+		BufferedReader reader = new BufferedReader(new FileReader(filename));
+		String line = null;
+		String topic = null;
+		HashMap<String, TweetSet> tweetSets = new HashMap<String, TweetSet>();
+		List<LabeledTweet> tweetSet = new ArrayList<LabeledTweet>();
+		line = reader.readLine();
+		String[] fields = line.split("\t");
+		topic = fields[0];
+		while (line != null) {
+			if (!topic.equalsIgnoreCase(fields[0])) {
+				tweetSets.put(topic,new TweetSet(tweetSet));
+				tweetSet = new ArrayList<LabeledTweet>();
+				topic = fields[0];
+			}
+			String tweet = fields[2];
+			if (tweet.equalsIgnoreCase("not available")) {
+				line = reader.readLine();
+				continue;
+			}
+			boolean positive = fields[1].equalsIgnoreCase("positive");
+			LabeledTweet labeledTweet = new LabeledTweet(tweet, positive);  
+			tweetSet.add(labeledTweet);
+			line = reader.readLine();
+		}
+		return tweetSets;
+	}
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub

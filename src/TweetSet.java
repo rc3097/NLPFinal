@@ -1,6 +1,7 @@
+import java.util.Iterator;
 import java.util.List;
 
-public class TweetSet {
+public class TweetSet implements Iterable<LabeledTweet>{
 		private List<LabeledTweet> tweetSet;
 		private Double pValue;
 		public TweetSet(List<LabeledTweet> tweets) {
@@ -19,6 +20,12 @@ public class TweetSet {
 		public Double getpValue() {
 			return pValue;
 		}
-
-
-	}
+		public int size() {
+			return this.tweetSet.size();
+		}
+		@Override
+		public Iterator<LabeledTweet> iterator() {
+			return this.tweetSet.iterator();
+		}
+		
+}
