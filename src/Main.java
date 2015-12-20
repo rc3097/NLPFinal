@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import main.TweetVectorizer;
 import nlp.langmodel.MaxentTesterModel1;
 import nlp.langmodel.MaxentTesterModel2;
 import nlp.langmodel.SentimentQuantifier;
@@ -17,6 +18,8 @@ import nlp.util.Pair;
 
 public class Main {
 
+	HashMap<String, TweetSet> training;
+	HashMap<String, TweetSet> test;
 	static class SentenceCollection {
 		static class SentenceIterator implements
 				Iterator<Pair<Pair<String, String>, List<String>>> {
@@ -186,6 +189,9 @@ public class Main {
 
 			} else if (model.equals("ME2")) {
 				LM = new MaxentTesterModel2();
+			} else if (model.equalsIgnoreCase("stanford")) {
+				TweetVectorizer.initialize();
+				
 			}
 		}
 		LM.train(traindata);

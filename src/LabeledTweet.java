@@ -1,6 +1,12 @@
+import java.io.Serializable;
+
 import main.TweetVectorizer;
 
-public class LabeledTweet {
+public class LabeledTweet implements Serializable {
+		/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 		Double Vector[];
 		private String tweet;
 		private boolean label;

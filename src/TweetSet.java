@@ -1,8 +1,13 @@
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-public class TweetSet implements Iterable<LabeledTweet>{
+public class TweetSet implements Iterable<LabeledTweet>, Serializable {
+		/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 		private List<LabeledTweet> tweetSet;
 		private Double pValue;
 		public TweetSet(List<LabeledTweet> tweets) {
