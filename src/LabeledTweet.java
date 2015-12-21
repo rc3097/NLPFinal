@@ -1,6 +1,10 @@
-import main.TweetVectorizer;
+import java.io.Serializable;
 
-public class LabeledTweet {
+public class LabeledTweet implements Serializable {
+		/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 		Double Vector[];
 		private String tweet;
 		private boolean label;
@@ -9,7 +13,7 @@ public class LabeledTweet {
 			return tweet;
 		}
 
-		public boolean getLabel() {
+		public boolean isPositive() {
 			return label;
 		}
 
