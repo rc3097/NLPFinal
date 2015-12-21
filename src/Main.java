@@ -330,8 +330,8 @@ public class Main {
 
 				int numLayers, lstmLayerSize, inputDimension;
 				inputDimension = tempVector.length;
-				numLayers = 4;
-				lstmLayerSize = 25;
+				numLayers = 3;
+				lstmLayerSize = 2;
 
 				// create and train
 				LstmRntnQuantifier lstm = new LstmRntnQuantifier(numLayers,
