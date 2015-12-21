@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import main.TweetVectorizer;
 import nlp.langmodel.MaxentTesterModel1;
 import nlp.langmodel.MaxentTesterModel2;
 import nlp.langmodel.SentimentQuantifier;
