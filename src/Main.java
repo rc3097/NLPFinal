@@ -175,6 +175,38 @@ public class Main {
 		
 	}
 
+	public static HashMap<String, Pair<List<List<String>>, List<List<String>>>> reformatdata(
+			HashMap<Pair<String, String>, List<List<String>>> testdata) {
+		HashMap<String, Pair<List<List<String>>, List<List<String>>>> formatteddata = new HashMap<String, Pair<List<List<String>>, List<List<String>>>>();
+		for (HashMap.Entry<Pair<String, String>, List<List<String>>> entry : testdata
+				.entrySet()) {
+			Pair<String, String> keyPair = entry.getKey();
+			String label = keyPair.getSecond();
+			String topic = keyPair.getFirst();
+			List<List<String>> sentenceList = entry.getValue();
+			if (formatteddata.containsKey(topic)) {
+				Pair<List<List<String>>, List<List<String>>> valueList = formatteddata
+						.get(topic);
+				if (label.equals("positive")) {
+					valueList.setFirst(sentenceList);
+				} else {
+					valueList.setSecond(sentenceList);
+				}
+			} else {
+				if (label.equals("positive")) {
+					formatteddata.put(topic,
+							new Pair<List<List<String>>, List<List<String>>>(
+									sentenceList, null));
+				} else {
+					formatteddata.put(topic,
+							new Pair<List<List<String>>, List<List<String>>>(
+									null, sentenceList));
+				}
+			}
+		}
+		return formatteddata;
+	}
+
 	public static void main(String[] args) throws Exception {
 		TweetVectorizer.initialize();
 		
@@ -286,6 +318,44 @@ public class Main {
 				System.out.println("Average KLD loss on test: "+lstm.KLD(testTweets, false));
 				
 				
+				System.exit(0);
+			} else if (model.equals("inter")) {
+				HashMap<String, TweetSet> trainingTweets = readTweets(basePath);
+				HashMap<String, TweetSet> testTweets = readTweets(testPath);
+				HashMap<String,Pair<List<List<String>>,List<List<String>>>> testformatteddata = reformatdata(testdata);
+				System.out.println("finished reading");
+
+				Double[] tempVector = TweetVectorizer
+						.vectorize("hello my name is Bob");
+
+				int numLayers, lstmLayerSize, inputDimension;
+				inputDimension = tempVector.length;
+				numLayers = 4;
+				lstmLayerSize = 25;
+
+				// create and train
+				LstmRntnQuantifier lstm = new LstmRntnQuantifier(numLayers,
+						lstmLayerSize, inputDimension,false);
+				lstm.train(trainingTweets, 100);
+				MaxentTesterModel1 Mxmodel = new MaxentTesterModel1();
+				Mxmodel.train(traindata);
+				
+				double totalLoss = 0.0;
+				for (String topic : testTweets.keySet()) {
+					double currentPrediction = lstm
+							.predictProbability(testTweets.get(topic));
+					double label = testTweets.get(topic).getpValue();
+					double Maxentq = Mxmodel.getpredictProbability(testformatteddata.get(topic));
+					double currentKLD = lstm.lossfunction(label,
+							(currentPrediction+Maxentq)/2);
+					System.out.println("For topic \"" + topic
+							+ "\", prediction: " + currentPrediction
+							+ ", KLD: " + label);
+					totalLoss += currentKLD;
+				}
+				System.out.println("Average KLD loss: "
+						+ (totalLoss / testTweets.size()));
+
 				System.exit(0);
 			}
 			
