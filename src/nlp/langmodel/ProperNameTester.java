@@ -74,9 +74,9 @@ public class ProperNameTester {
 				// add character unigram features
 				
 				word =word.toLowerCase();
-				if (word.contains("http:")) {
-					continue;
-				}
+				 if (word.contains("http:")) {
+				 continue;
+				 }
 				word = word.replace(".", "");
 				word =  word.replace(",", "");
 				if (word.equals("no")) {

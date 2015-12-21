@@ -73,7 +73,6 @@ public class MaxentTesterModel1 extends SentimentQuantifier {
 									null, sentenceList));
 				}
 			}
-
 		}
 
 		double n = 0;
@@ -110,5 +109,37 @@ public class MaxentTesterModel1 extends SentimentQuantifier {
 		}
 
 		return probaility / n;
+	}
+	
+	
+	public double getpredictProbability(
+			Pair<List<List<String>>, List<List<String>>> formatteddata) {
+
+		double n = 0;
+		double probaility = 0.0;
+
+			Pair<List<List<String>>, List<List<String>>> value = formatteddata;
+			List<List<String>> positivesentences = value.getFirst();
+			List<List<String>> negativesentences = value.getSecond();
+
+			int total = positivesentences.size() + negativesentences.size();
+			int pre_positivecount = 0;
+			int real_positviecount = positivesentences.size();
+
+			List<List<String>> sentenceList = new ArrayList<List<String>>();
+			sentenceList.addAll(positivesentences);
+			sentenceList.addAll(negativesentences);
+			for (List<String> sentence : sentenceList) {
+				String[] templist = new String[sentence.size()];
+				sentence.toArray(templist);
+				Counter<String> result = classifier.getProbabilities(templist);
+				System.out.println(result);
+				if (result.getCount("positive") > result.getCount("negative")) {
+					pre_positivecount++;
+				}
+			}
+			double q = real_positviecount * 1.0 / total;
+			double p = 1.0 * pre_positivecount / total;
+			return p;
 	}
 }

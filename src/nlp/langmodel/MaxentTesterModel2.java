@@ -30,8 +30,8 @@ public class MaxentTesterModel2 extends MaxentTesterModel1{
 		String[] templist = new String[tempsentence.size()];
 		tempsentence.toArray(templist);
 		Counter<String> result = classifier.getProbabilities(templist);
-		double p = real_positviecount*1.0/total;
-		double q =  result.getCount("positive");
+		double q = real_positviecount*1.0/total;
+		double p =  result.getCount("positive");
 		return lossfunction(p, q);
 	}
 }
