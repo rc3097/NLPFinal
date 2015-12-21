@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
+import javax.naming.spi.DirStateFactory.Result;
+
 import nlp.classify.FeatureExtractor;
 import nlp.classify.LabeledInstance;
 import nlp.classify.ProbabilisticClassifier;
@@ -13,7 +15,7 @@ import nlp.langmodel.ProperNameTester.ProperNameFeatureExtractor;
 import nlp.util.Counter;
 import nlp.util.Pair;
 
-public class MaxentTesterModel1 extends SentimentQuantifier {
+public class MaxentTesterModel1 extends LanguageModel {
 	ProbabilisticClassifier<String[], String> classifier = null;
 
 	public void train(
@@ -38,25 +40,62 @@ public class MaxentTesterModel1 extends SentimentQuantifier {
 			}
 		}
 		MaximumEntropyClassifier.Factory<String[], String, String> factory = new MaximumEntropyClassifier.Factory<String[], String, String>(
-				1.0, 20, new ProperNameTester.ListStringFeatureExtractor());
+				1.0, 40, new ProperNameTester.ListStringFeatureExtractor());
 		classifier = factory.trainClassifier(trainingData);
 	}
 
 	public double predictProbability(
 			HashMap<Pair<String, String>, List<List<String>>> testdata) {
-		int pre_positivecount = 0;
-		int real_positviecount = 0;
-		int total =0;
+
+		HashMap<String, Pair<List<List<String>>, List<List<String>>>> formatteddata = new HashMap<String, Pair<List<List<String>>, List<List<String>>>>();
 		for (Entry<Pair<String, String>, List<List<String>>> entry : testdata
 				.entrySet()) {
-			
 			Pair<String, String> keyPair = entry.getKey();
 			String label = keyPair.getSecond();
-			
-			for (List<String> sentence : entry.getValue()) {
-				total++;
-				if (label.equals("positive"))
-					real_positviecount++;
+			String topic = keyPair.getFirst();
+			List<List<String>> sentenceList = entry.getValue();
+			if (formatteddata.containsKey(topic)) {
+				Pair<List<List<String>>, List<List<String>>> valueList = formatteddata
+						.get(topic);
+				if (label.equals("positive")) {
+					valueList.setFirst(sentenceList);
+				} else {
+					valueList.setSecond(sentenceList);
+				}
+			} else {
+				if (label.equals("positive")) {
+					formatteddata.put(topic,
+							new Pair<List<List<String>>, List<List<String>>>(
+									sentenceList, null));
+				} else {
+					formatteddata.put(topic,
+							new Pair<List<List<String>>, List<List<String>>>(
+									null, sentenceList));
+				}
+			}
+
+		}
+
+		double n = 0;
+		double probaility = 0.0;
+		for (Entry<String, Pair<List<List<String>>, List<List<String>>>> entry : formatteddata
+				.entrySet()) {
+			n++;
+
+			String topic = entry.getKey();
+			Pair<List<List<String>>, List<List<String>>> value = entry
+					.getValue();
+			List<List<String>> positivesentences = value.getFirst();
+			List<List<String>> negativesentences = value.getSecond();
+
+			int total = positivesentences.size() + negativesentences.size();
+			int pre_positivecount = 0;
+			int real_positviecount = positivesentences.size();
+
+			List<List<String>> sentenceList = new ArrayList<List<String>>();
+			sentenceList.addAll(positivesentences);
+			sentenceList.addAll(negativesentences);
+			for (List<String> sentence : sentenceList) {
 				String[] templist = new String[sentence.size()];
 				sentence.toArray(templist);
 				Counter<String> result = classifier.getProbabilities(templist);
@@ -65,9 +104,11 @@ public class MaxentTesterModel1 extends SentimentQuantifier {
 					pre_positivecount++;
 				}
 			}
+			double p = real_positviecount * 1.0 / total;
+			double q = 1.0 * pre_positivecount / total;
+			probaility += lossfunction(p, q);
 		}
-		double p = real_positviecount*1.0/total;
-		double q =  1.0*pre_positivecount/total;
-		return lossfunction(p, q);
+
+		return probaility / n;
 	}
 }
