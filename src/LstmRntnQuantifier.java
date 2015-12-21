@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.StringJoiner;
+//import java.util.StringJoiner;
 
 import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
@@ -14,6 +14,9 @@ import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
+import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.dataset.DataSet;
+import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.LossFunctions.LossFunction;
 
 import nlp.langmodel.SentimentQuantifier;
@@ -59,35 +62,38 @@ public class LstmRntnQuantifier extends SentimentQuantifier {
 		}
 		System.out.println("Total number of network parameters: " + totalNumParams);
 	}
-
+	
 	@Override
-	public void train(HashMap<Pair<String, String>, List<List<String>>> traindata) {
-		// TODO Auto-generated method stub
-		//separate data by topic
-		HashMap<String,List<Pair<String,String>>> tweetsets = new HashMap<String,List<Pair<String,String>>>();
-		for (Pair<String,String> key : traindata.keySet()) {
-			String topic = key.getFirst();
-			String label = key.getSecond();
-			if (!tweetsets.containsKey(topic)) tweetsets.put(topic,new ArrayList<Pair<String,String>>());
-			List<Pair<String,String>> tweetset = tweetsets.get(key);
-			List<List<String>> sentences = traindata.get(key);
-			for (List<String> sentenceList : sentences) {
-				StringJoiner joiner = new StringJoiner(" ");
-				for (String word : sentenceList)
-					joiner.add(word);
-				String sentenceString = joiner.toString();
-				tweetset.add(new Pair<String,String>(label,sentenceString));
-			}
+	public void train(HashMap<Pair<String,String>,List<List<String>>> traindata) {}
+	
+	public void train(HashMap<String,TweetSet> tweetSets, int numEpochs) {
+		System.out.println("Training network.");
+		WordVectorIterator iter = new WordVectorIterator(tweetSets);
+		for (int epoch = 0; epoch < numEpochs; ++epoch) {
+			System.out.println("Beginning epoch "+epoch+":");
+			net.fit(iter);
+			System.out.println("Completed epoch "+epoch+".\n");
 		}
-		
-		
+		System.out.println("Training complete.\n");
 	}
 
 	@Override
 	public double predictProbability(HashMap<Pair<String, String>, List<List<String>>> testdata) {
-		// TODO Auto-generated method stub
-		
 		return 0;
+	}
+	
+	public double predictProbability(TweetSet tweetSet) {
+		double[] features = new double[tweetSet.size() * 25];
+		for (int j = 0; j <tweetSet.size() ; j++) {
+			for (int k = 0 ; k < 25 ; k++) {
+				features[25 * j + k] = tweetSet.getTweetSet().get(j).getVector()[k];
+			
+			}
+		}
+		INDArray inputs = Nd4j.create(features, new int[] { tweetSet.size(), 25 }); 
+		net.feedForward(inputs);
+		INDArray output = net.activate();
+		return (double)output.getFloat(new int[]{tweetSet.size()-1,25});
 	}
 	
 	

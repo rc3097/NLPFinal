@@ -1,7 +1,11 @@
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -9,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import main.TweetVectorizer;
 import nlp.langmodel.MaxentTesterModel1;
 import nlp.langmodel.MaxentTesterModel2;
 import nlp.langmodel.SentimentQuantifier;
@@ -18,8 +21,6 @@ import nlp.util.Pair;
 
 public class Main {
 
-	HashMap<String, TweetSet> training;
-	HashMap<String, TweetSet> test;
 	static class SentenceCollection {
 		static class SentenceIterator implements
 				Iterator<Pair<Pair<String, String>, List<String>>> {
@@ -121,7 +122,7 @@ public class Main {
 
 	
 	
-	public HashMap<String, TweetSet> readTweets(String filename) throws IOException {
+	public static HashMap<String, TweetSet> readTweets(String filename) throws IOException {
 		BufferedReader reader = new BufferedReader(new FileReader(filename));
 		String line = null;
 		String topic = null;
@@ -131,7 +132,10 @@ public class Main {
 		String[] fields = line.split("\t");
 		topic = fields[0];
 		while (line != null) {
+			fields =line.split("\t");
 			if (!topic.equalsIgnoreCase(fields[0])) {
+				System.out.println("finished with "+topic+" ("+tweetSet.size()+" examples)");
+				System.out.println("starting with "+fields[0]);
 				tweetSets.put(topic,new TweetSet(tweetSet));
 				tweetSet = new ArrayList<LabeledTweet>();
 				topic = fields[0];
@@ -146,10 +150,33 @@ public class Main {
 			tweetSet.add(labeledTweet);
 			line = reader.readLine();
 		}
+		reader.close();
 		return tweetSets;
 	}
+	
+	public static void serialize(HashMap<String, TweetSet> sets) throws IOException {
+		FileOutputStream fos = new FileOutputStream("map.ser");
+		ObjectOutputStream oos = new ObjectOutputStream(fos);
+		oos.writeObject(sets);
+		fos.close();
+		oos.close();
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static HashMap<String, TweetSet> unserialize() throws IOException, ClassNotFoundException {
+		
+		FileInputStream fis = new FileInputStream("map.ser");
+		ObjectInputStream ois = new ObjectInputStream(fis);
+		HashMap<String,TweetSet> ret = (HashMap<String, TweetSet>) ois.readObject();
+		fis.close();
+		ois.close();
+		return ret;
+		
+	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException, ClassNotFoundException {
+		TweetVectorizer.initialize();
+		
 		// TODO Auto-generated method stub
 		Map<String, String> argMap = CommandLineUtils
 				.simpleCommandLineParser(args);
@@ -162,10 +189,32 @@ public class Main {
 		HashMap<Pair<String, String>, List<List<String>>> testdata = null;
 		HashMap<Pair<String, String>, List<List<String>>> traindata = null;
 		SentimentQuantifier LM = null;
+		
+		if (argMap.containsKey("-test")) {
+			testPath = argMap.get("-test");
+			testdata = SC.reader(testPath);
+		}
 
 		if (argMap.containsKey("-path")) {
 			basePath = argMap.get("-path");
 			traindata = SC.reader(basePath);
+		}
+		
+		if (argMap.containsKey("-serialize")) {
+			HashMap<String,TweetSet> trainTweets = readTweets(basePath);
+			serialize(trainTweets);
+			System.exit(0);
+		}
+		
+		if (argMap.containsKey("-testSerialize")) {
+			HashMap<String,TweetSet> testTweets = unserialize();
+			for (String topic : testTweets.keySet()) {
+				TweetSet ts = testTweets.get(topic);
+				for (int i = 0; i < ts.size(); ++i) {
+					System.out.println(ts.getTweetSet().get(i));
+				}
+			}
+			System.exit(0);
 		}
 
 		if (argMap.containsKey("-positive")) {
@@ -189,17 +238,40 @@ public class Main {
 
 			} else if (model.equals("ME2")) {
 				LM = new MaxentTesterModel2();
-			} else if (model.equalsIgnoreCase("stanford")) {
-				TweetVectorizer.initialize();
+			} else if (model.equals("LSTM")) {
+				//get data
+				HashMap<String,TweetSet> trainingTweets = readTweets(basePath);
+				HashMap<String,TweetSet> testTweets = readTweets(testPath);
 				
+				System.out.println("finished reading");
+				
+				Double[] tempVector = TweetVectorizer.vectorize("hello my name is Bob");
+				
+				int numLayers, lstmLayerSize, inputDimension;
+				inputDimension = tempVector.length;
+				numLayers = 4;
+				lstmLayerSize = 25;
+				
+				//create and train
+				LstmRntnQuantifier lstm = new LstmRntnQuantifier(numLayers, lstmLayerSize, inputDimension);
+				lstm.train(trainingTweets, 30);
+				
+				double totalLoss = 0.0;
+				for (String topic : testTweets.keySet()) {
+					double currentPrediction = lstm.predictProbability(testTweets.get(topic));
+					double label = testTweets.get(topic).getpValue();
+					double currentKLD = lstm.lossfunction(label, currentPrediction);
+					System.out.println("For topic \""+topic+"\", prediction: "+currentPrediction+", KLD: "+label);
+					totalLoss += currentKLD;
+				}
+				System.out.println("Average KLD loss: "+(totalLoss/testTweets.size()));
+				
+				System.exit(0);
 			}
+			
 		}
+		
 		LM.train(traindata);
-		if (argMap.containsKey("-test")) {
-			testPath = argMap.get("-test");
-			testdata = SC.reader(testPath);
-		}
-
 		System.out.println(LM.predictProbability(testdata));
 	}
 }
